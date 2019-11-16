@@ -28,6 +28,7 @@ unsigned char* openImageAsArray()
   int row_padding = (width * 3 + 3) & (~3);
 
   image_data = (unsigned char*) malloc(row_padding);
+  int counter = 0;
 
   for(int i = 0; i < height; i++)
   {
@@ -44,7 +45,10 @@ unsigned char* openImageAsArray()
       image_data[j] = image_data[j+2];
       image_data[j+2] = tmp;
       printf("%x%x%x\n", (int)image_data[j], (int)image_data[j+1], (int)image_data[j+2]);
+      counter++;
     }
+
+    printf("Number of pixels: %d", counter);
   }
 
   return image_data;
