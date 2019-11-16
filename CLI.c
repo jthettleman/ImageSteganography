@@ -2,60 +2,28 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include "head.h"
 
-char input_image[] = "bee.bmp";
-unsigned char* image_data;
+char* IMAGE_FILENAME = "bee.bmp";
+char* TEXT_FILENAME = "beemoviescript.txt";
+char* OUTPUT_FILENAME = "beeStegged.bmp";
 
-unsigned char* openImageAsArray()
+int main(int argc, char *argv[])
 {
-  FILE *fp;
-  if((fp = fopen("bee.bmp", "rb")) == NULL)
-  {
-    printf("Error opening image\n");
-    exit(1);
-  }
+  if(argc != 1 && argc != 4) {
+		printf("ERROR: Run with no arguments or with 3 arguments: %s IMAGE_FILENAME TEXT_FILENAME OUTPUT_FILENAME", argv[0]);
+		return -1;
+	}
+	if(argc == 4) {
+		IMAGE_FILENAME = argv[1];
+		TEXT_FILENAME = argv[2];
+		OUTPUT_FILENAME = argv[3];
+	}
 
-  unsigned char image_info[54];
-  int success = fread(image_info, sizeof(unsigned char), 54, fp);
-  if(success <= 1)
-  {
-    printf("Not a bmp file\n");
-    exit(1);
-  }
-
-  int width = *(int*)&image_info[18];
-  int height = *(int*)&image_info[22];
-  int row_padding = (width * 3 + 3) & (~3);
-
-  image_data = (unsigned char*) malloc(row_padding);
-  int counter = 0;
-
-  for(int i = 0; i < height; i++)
-  {
-    success = fread(image_data, sizeof(unsigned char), row_padding, fp);
-    if(success <= 1)
-    {
-      printf("Not a bmp file\n");
-      exit(1);
-    }
-
-    for(int j = 0; j < width*3; j+=3)
-    {
-      unsigned char tmp = image_data[j];
-      image_data[j] = image_data[j+2];
-      image_data[j+2] = tmp;
-      printf("%x%x%x\n", (int)image_data[j], (int)image_data[j+1], (int)image_data[j+2]);
-      counter++;
-    }
-
-    printf("Number of pixels: %d", counter);
-  }
-
-  return image_data;
-}
-
-int main()
-{
-  openImageAsArray();
+  openTextAsArray();
   return 0;
 }
+
+char* getImageName(){return IMAGE_FILENAME;}
+char* getTextFileName(){return TEXT_FILENAME;}
+char* getOutputName(){return OUTPUT_FILENAME;}
