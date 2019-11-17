@@ -42,7 +42,8 @@ void openImageAsArray()
       unsigned char tmp = image_data[j];
       image_data[j] = image_data[j+2];
       image_data[j+2] = tmp;
-      printf("%x%x%x\n", (int)image_data[j], (int)image_data[j+1], (int)image_data[j+2]);
+      //printf("%x%x%x\n", (int)image_data[j], (int)image_data[j+1], (int)image_data[j+2]);
+      printf("%s\n%s\n%s\n", byte_to_binary(image_data[j]), byte_to_binary(image_data[j+1]), byte_to_binary(image_data[j+2]));
       counter++;
     }
   }

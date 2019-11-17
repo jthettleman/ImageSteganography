@@ -20,7 +20,8 @@ int main(int argc, char *argv[])
 		OUTPUT_FILENAME = argv[3];
 	}
 
-  openTextAsArray();
+  openImageAsArray();
+  //openTextAsArray();
   return 0;
 }
 
