@@ -9,4 +9,4 @@ void hackifyImage();
 char* getImageName();
 char* getTextFileName();
 char* getOutputName();
-const char *byte_to_binary(int x);
+char *byte_to_binary(int x);
