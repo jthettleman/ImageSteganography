@@ -7,6 +7,7 @@
 int width;
 int height;
 int row_padding;
+unsigned char image_info[54];
 
 void openImageAsArray()
 {
@@ -20,7 +21,6 @@ void openImageAsArray()
   }
 
   //Get bmp header information
-  unsigned char image_info[54];
   int success = fread(image_info, sizeof(unsigned char), 54, fp);
   if(success <= 1)
   {
@@ -32,45 +32,66 @@ void openImageAsArray()
   width = *(int*)&image_info[18];
   height = *(int*)&image_info[22];
   row_padding = (width * 3 + 3) & (~3);
-
+  printf("Height: %d", height);
+  printf("Width: %d", width);
+  printf("Row padding: %d", row_padding);
   //Allocate size
-  image_data = (unsigned char*) malloc(row_padding);
-  int counter = 0;
+  image_data = (unsigned char*) malloc(row_padding*height);
+  //int counter = 0;
 
   //Read pixel information
-  for(int i = 0; i < height; i++)
-  {
-    success = fread(image_data, sizeof(unsigned char), row_padding, fp);
-    if(success <= 1)
-    {
-      printf("Not a bmp file\n");
-      exit(1);
-    }
 
-    for(int j = 0; j < width*3; j+=3)
-    {
-      unsigned char tmp = image_data[j];
-      image_data[j] = image_data[j+2];
-      image_data[j+2] = tmp;
-      //printf("%x%x%x\n", (int)image_data[j], (int)image_data[j+1], (int)image_data[j+2]);
-      //printf("%s\n%s\n%s\n", byte_to_binary(image_data[j]), byte_to_binary(image_data[j+1]), byte_to_binary(image_data[j+2]));
-      counter++;
-    }
+  success = fread(image_data, sizeof(unsigned char), row_padding*height, fp);
+  if(success <= 1)
+  {
+    printf("Not a bmp file\n");
+    exit(1);
   }
 
-  printf("Number of pixels: %d", counter);
+  //printf("Number of pixels: %d", counter);
   fclose(fp);
   return;
 }
 
 void hackifyImage()
 {
-  for(int i = 0; i < height; i++)
+  for(int j = 0; j < getTextFileSize(); j++)
   {
-    for(int j = 0; j < width*3; j+=3)
+    const char* binary = byte_to_binary(image_data[j]);
+    //printf("Binary: %s\n", binary);
+    bool last_digit = (binary[7]==49 ? 1 : 0);
+    //printf("Last: %d\n", last_digit);
+    if(last_digit == text_data[j])
     {
-      const char* binary = byte_to_binary(image_data[j]);
-      printf("%s\n", binary);
+      //Nothin
+    }
+    else
+    {
+      //printf("%d\n", last_digit);
+      if(last_digit == 1)
+      {
+        //image_data[j] = image_data[j] & 254;
+        image_data[j] = image_data[j] & 254;
+      }
+      else
+      {
+        image_data[j] = image_data[j] | 1;
+      }
     }
   }
+}
+
+void rebuildImage()
+{
+  FILE* fp;
+  if((fp = fopen(getOutputName(), "wb")) == NULL)
+  {
+    printf("Error creating image\n");
+    exit(1);
+  }
+
+  fwrite(image_info, sizeof(unsigned char), 54, fp);
+  fwrite(image_data, sizeof(unsigned char), row_padding*height, fp);
+
+  printf("Made Image!\n");
 }

@@ -6,6 +6,8 @@ bool* text_data;
 void openImageAsArray();
 void openTextAsArray();
 void hackifyImage();
+void rebuildImage();
+int getTextFileSize();
 char* getImageName();
 char* getTextFileName();
 char* getOutputName();

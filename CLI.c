@@ -20,14 +20,12 @@ int main(int argc, char *argv[])
 		OUTPUT_FILENAME = argv[3];
 	}
 
-<<<<<<< HEAD
+
   openImageAsArray();
-  //openTextAsArray();
-  hackifyImage();
-=======
-  //openImageAsArray();
   openTextAsArray();
->>>>>>> af3b409c4e98e951fe336d0ee04e0697bad30335
+  hackifyImage();
+  rebuildImage();
+
   return 0;
 }
 

@@ -5,7 +5,7 @@
 #include "head.h"
 
 
-
+int SIZE;
 
 char *byte_to_binary(int x)
 {
@@ -24,7 +24,7 @@ char *byte_to_binary(int x)
 void openTextAsArray()
 {
 
-    int counter = 0;
+    //int counter = 0;
     int placementCounter =0;
     //int num;
     FILE *sourceFile;//, *targetFile;
@@ -37,8 +37,8 @@ void openTextAsArray()
     fseek(sourceFile, 0, SEEK_END);
     size_t file_size = ftell(sourceFile);
     fseek(sourceFile, pos, SEEK_SET);
-
-    text_data = (bool*) malloc(file_size*8);
+    SIZE = file_size*8;
+    text_data = (bool*) malloc(SIZE);
 
     //error handling
     if (!sourceFile)
@@ -61,10 +61,10 @@ void openTextAsArray()
             //prints out hex
             //printf("%x\n", ch);
             char* num = byte_to_binary(ch);
-            printf("%s\n",num );
+            //printf("%s\n",num );
             for(int i=0;i<8;i++)
             {
-              printf("NumI: %d\n", num[i]);
+              //printf("NumI: %d\n", num[i]);
               if ((int)num[i] == 49) //checking for a 1 in ASCII since reading from char*
               {
                 text_data[placementCounter] = 1;
@@ -74,7 +74,7 @@ void openTextAsArray()
                 text_data[placementCounter] = 0;
               }
               //text_data[placementCounter++] = num[i];
-              printf("TextData:%d  Placement: %d placementCounter\n", text_data[placementCounter], placementCounter);
+              //printf("TextData:%d  Placement: %d placementCounter\n", text_data[placementCounter], placementCounter);
               placementCounter++;
             }
 
@@ -91,10 +91,15 @@ void openTextAsArray()
             //fwrite(&num, sizeof(int), 1, targetFile);
     }
 
-    printf("Number of characters: %d", counter);
+    //printf("Number of characters: %d", counter);
 
     // close files
     fclose(sourceFile);
     //fclose(targetFile);
     return;
+}
+
+int getTextFileSize()
+{
+  return SIZE;
 }
