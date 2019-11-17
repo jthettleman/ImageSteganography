@@ -4,6 +4,9 @@
 #include <unistd.h>
 #include "head.h"
 
+
+
+
 const char *byte_to_binary(int x)
 {
     static char b[9];
@@ -20,27 +23,12 @@ const char *byte_to_binary(int x)
 
 void openTextAsArray()
 {
+
+    int counter = 0;
     //int num;
     FILE *sourceFile;//, *targetFile;
     char ch;//, source[MAX_FILENAME], target[MAX_FILENAME];
 
-    //get the input file name from the user
-    // printf("Enter your input file name:");
-    // int success = scanf("%s", source);
-    // if(success < 1)
-    // {
-    //   printf("Input file error\n");
-    //   exit(1);
-    // }
-
-    //get the output filename from the user
-    // printf("Enter your output file name:");
-    // success = scanf("%s", target);
-    // if(success < 1)
-    // {
-    //   printf("Output file error\n");
-    //   exit(1);
-    // }
 
     //open the source file in read mode
     sourceFile = fopen(getTextFileName(), "r");
@@ -49,7 +37,7 @@ void openTextAsArray()
     size_t file_size = ftell(sourceFile);
     fseek(sourceFile, pos, SEEK_SET);
 
-    text_data = (unsigned char*) malloc(file_size);
+    text_data = (bool*) malloc(file_size*8);
 
     //error handling
     if (!sourceFile)
@@ -58,17 +46,6 @@ void openTextAsArray()
             exit(1);
     }
 
-    // open the target file in binary write mode
-    //targetFile = fopen(getTextFileName(), "wb");
-
-    // error handling
-    // if (!targetFile)
-    // {
-    //         printf("Unable to open the output file!!\n");
-    //         exit(1);
-    // }
-
-    int counter = 0;
 
     //read text from sourceFile, output to the targetFile as binary
     while (!feof(sourceFile))
