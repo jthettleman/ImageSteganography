@@ -5,6 +5,7 @@ unsigned char* image_data;
 bool* text_data;
 void openImageAsArray();
 void openTextAsArray();
+void hackifyImage();
 char* getImageName();
 char* getTextFileName();
 char* getOutputName();

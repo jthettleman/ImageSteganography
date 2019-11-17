@@ -22,6 +22,7 @@ int main(int argc, char *argv[])
 
   openImageAsArray();
   //openTextAsArray();
+  hackifyImage();
   return 0;
 }
 
