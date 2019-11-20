@@ -25,7 +25,7 @@ void openImageAsArray()
     exit(1);
   }
 
-  //Get bmp header information
+  //Get bmp header information as well as everything up to the width of the image
   int success = fread(image_info_top, 18, 1, fp);
   if(success < 1)
   {
@@ -33,38 +33,23 @@ void openImageAsArray()
     exit(1);
   }
 
-  //printf("Type: %d\n", image_info.type);
-  //printf("Size: %d\n", image_info.size);
-  //printf("Reserved 1: %d\n", image_info.reserved1);
-  //printf("Reserved 2: %d\n", image_info.reserved2);
-  //printf("Offset: %d\n", image_info.offset);
-  //printf("Header: %d\n", image_info.dib_header_size);
-  //printf("width: %d\n", image_info.width);
-  //printf("height: %d\n", image_info.height);
-  //printf("Num planes: %d\n", image_info.num_planes);
-  //printf("bits per pixel: %d\n", image_info.bits_per_pixel);
-  //printf("comp: %d\n", image_info.compression);
-  //printf("size bytes: %d\n", image_info.image_size_bytes);
-  //printf("x res: %d\n", image_info.x_resolution_ppm);
-  //printf("y res: %d\n", image_info.y_resolution_ppm);
-  //printf("# colors: %d\n", image_info.num_colors);
-  //printf("important colors: %d\n", image_info.important_colors);
-
-  //Get width and height of image and allocate for padding
-  //width = image_info.width;
-  //height = image_info.height;
+  //Reads the width
   success = fread(&width, 4, 1, fp);
   if(success < 1)
   {
     printf("HEADER ERROR: Not a 24-bit bmp file\n");
     exit(1);
   }
+  
+  //reads the height
   success = fread(&height, 4, 1, fp);
   if(success < 1)
   {
     printf("HEADER ERROR: Not a 24-bit bmp file\n");
     exit(1);
   }
+  
+  //reads the rest of the header
   success = fread(image_info_bottom, 28, 1, fp);
   if(success < 1)
   {
@@ -76,7 +61,6 @@ void openImageAsArray()
 
   //Allocate size
   image_data = (unsigned char*) malloc(row_padding*height);
-  //int counter = 0;
 
   //Read pixel information
   success = fread(image_data, sizeof(unsigned char), row_padding*height, fp);
@@ -94,6 +78,7 @@ void openImageAsArray()
 //to store text inside the image
 void hackifyImage()
 {
+  //makes sure the image can store the provided text
   if(row_padding*height < getTextFileSize())
   {
     printf("ERROR: Image is not large enough to store the text file provided\n");
@@ -139,11 +124,12 @@ void rebuildImage()
     exit(1);
   }
 
-  //Writes bmp header and new data
+  //Writes bmp header info and new data
   fwrite(image_info_top, 1, 18, fp);
   fwrite(&width, 4, 1, fp);
   fwrite(&height, 4, 1, fp);
   fwrite(image_info_bottom, 1, 28, fp);
+  
   fwrite(image_data, sizeof(unsigned char), row_padding*height, fp);
 
   printf("SUCCESS: Image Created\n");
@@ -170,6 +156,7 @@ void readHiddenData()
       //Converts boolean to integer 1 or 0
       bool last_digit = (binary[7]==49 ? 1 : 0);
       
+      //Modifies the char to store the bits read from the array of pixels
       if(byte_counter%8 == 0)
       {
         if(last_digit == 1)byte_buffer = byte_buffer|128;
@@ -205,9 +192,9 @@ void readHiddenData()
       
       else if(byte_counter%8 == 7)
       {
+        //once a full byte is made it writes the byte to a file and resets
         if(last_digit == 1)byte_buffer = byte_buffer|1;
         fwrite(&byte_buffer, 1, 1, fp);
-        printf("%c", byte_buffer);
         byte_buffer = byte_buffer & 0;
       }
       
