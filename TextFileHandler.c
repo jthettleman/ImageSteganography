@@ -23,12 +23,9 @@ char *byte_to_binary(int x)
 
 void openTextAsArray()
 {
-
-    //int counter = 0;
     int placementCounter =0;
-    //int num;
-    FILE *sourceFile;//, *targetFile;
-    char ch;//, source[MAX_FILENAME], target[MAX_FILENAME];
+    FILE *sourceFile;
+    char ch;
 
 
     //open the source file in read mode
@@ -58,13 +55,9 @@ void openTextAsArray()
               printf("Read error\n");
               exit(1);
             }
-            //prints out hex
-            //printf("%x\n", ch);
             char* num = byte_to_binary(ch);
-            //printf("%s\n",num );
             for(int i=0;i<8;i++)
             {
-              //printf("NumI: %d\n", num[i]);
               if ((int)num[i] == 49) //checking for a 1 in ASCII since reading from char*
               {
                 text_data[placementCounter] = 1;
@@ -73,25 +66,9 @@ void openTextAsArray()
               {
                 text_data[placementCounter] = 0;
               }
-              //text_data[placementCounter++] = num[i];
-              //printf("TextData:%d  Placement: %d placementCounter\n", text_data[placementCounter], placementCounter);
               placementCounter++;
             }
-
-
-            //text_data[counter] = ch;
-            //byte to binary implemantation
-            //printf("%s\n", byte_to_binary(ch));
-            //printf("%s\n", byte_to_binary(text_data[counter++]));
-
-            // saving as a char as an int, turns it into an ascii value
-            //converting the character to ascii integer value
-            //num = ch;
-            //writing 4 byte of data to the output file
-            //fwrite(&num, sizeof(int), 1, targetFile);
     }
-
-    //printf("Number of characters: %d", counter);
 
     // close files
     fclose(sourceFile);

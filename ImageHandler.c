@@ -7,7 +7,7 @@
 int width;
 int height;
 int row_padding;
-unsigned char image_info[54];
+BMPHeader image_info;
 
 //Opens a desired bmp image file as an array of B,G,R color values
 //I.E. image_data[0-2] would have the B, G, and R pixel values and 
@@ -24,19 +24,35 @@ void openImageAsArray()
   }
 
   //Get bmp header information
-  int success = fread(image_info, sizeof(unsigned char), 54, fp);
-  if(success <= 1)
+  int success = fread(&image_info, sizeof(BMPHeader), 1, fp);
+  if(success < 1)
   {
-    printf("ERROR: Not a bmp file\n");
+    printf("HEADER ERROR: Not a 24-bit bmp file\n");
     exit(1);
   }
 
+  printf("Type: %d\n", image_info.type);
+  printf("Size: %d\n", image_info.size);
+  printf("Reserved 1: %d\n", image_info.reserved1);
+  printf("Reserved 2: %d\n", image_info.reserved2);
+  printf("Offset: %d\n", image_info.offset);
+  printf("Header: %d\n", image_info.dib_header_size);
+  printf("width: %d\n", image_info.width);
+  printf("height: %d\n", image_info.height);
+  printf("Num planes: %d\n", image_info.num_planes);
+  printf("bits per pixel: %d\n", image_info.bits_per_pixel);
+  printf("comp: %d\n", image_info.compression);
+  printf("size bytes: %d\n", image_info.image_size_bytes);
+  printf("x res: %d\n", image_info.x_resolution_ppm);
+  printf("y res: %d\n", image_info.y_resolution_ppm);
+  printf("# colors: %d\n", image_info.num_colors);
+  printf("important colors: %d\n", image_info.important_colors);
+
   //Get width and height of image and allocate for padding
-  width = *(int*)&image_info[18];
-  height = *(int*)&image_info[22];
-  row_padding = (width * 3 + 3) & (~3);
+  width = image_info.width;
+  height = image_info.height;
   
-  printf("%d --- %d", width, height);
+  row_padding = (width * 3 + 3) & (~3);
 
   //Allocate size
   image_data = (unsigned char*) malloc(row_padding*height);
@@ -44,9 +60,9 @@ void openImageAsArray()
 
   //Read pixel information
   success = fread(image_data, sizeof(unsigned char), row_padding*height, fp);
-  if(success <= 1)
+  if(success < 1)
   {
-    printf("ERROR: Not a bmp file\n");
+    printf("CONTENT ERROR: Not a 24-bit bmp file\n");
     exit(1);
   }
 
@@ -104,7 +120,7 @@ void rebuildImage()
   }
 
   //Writes bmp header and new data
-  fwrite(image_info, sizeof(unsigned char), 54, fp);
+  fwrite(&image_info, sizeof(unsigned char), 54, fp);
   fwrite(image_data, sizeof(unsigned char), row_padding*height, fp);
 
   printf("SUCCESS: Image Created\n");
