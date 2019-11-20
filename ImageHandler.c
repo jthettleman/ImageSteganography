@@ -35,6 +35,8 @@ void openImageAsArray()
   width = *(int*)&image_info[18];
   height = *(int*)&image_info[22];
   row_padding = (width * 3 + 3) & (~3);
+  
+  printf("%d --- %d", width, height);
 
   //Allocate size
   image_data = (unsigned char*) malloc(row_padding*height);
@@ -106,4 +108,68 @@ void rebuildImage()
   fwrite(image_data, sizeof(unsigned char), row_padding*height, fp);
 
   printf("SUCCESS: Image Created\n");
+}
+
+//Reads the hidden data inside of the image
+void readHiddenData()
+{
+  FILE* fp;
+  if((fp = fopen(getOutputTextFileName(), "wb")) == NULL)
+  {
+    printf("Error creating text file\n");
+    exit(1);
+  }
+
+  unsigned char byte_buffer = ' ';
+  byte_buffer = byte_buffer & 0;
+  int byte_counter = 0;
+  
+  for(int i = 0; i < row_padding*height; i++)
+    {
+      //Stores single pixel value as a string
+      const char* binary = byte_to_binary(image_data[i]);
+      //Converts boolean to integer 1 or 0
+      bool last_digit = (binary[7]==49 ? 1 : 0);
+      
+      if(byte_counter%8 == 0)
+      {
+        if(last_digit == 1)byte_buffer = byte_buffer|128;
+      }
+      else if(byte_counter%8 == 1)
+      {
+        if(last_digit == 1)byte_buffer = byte_buffer|64;
+      }
+      else if (byte_counter%8 == 2)
+      {
+        if(last_digit == 1)byte_buffer = byte_buffer|32;
+      }
+      
+      else if (byte_counter%8 == 3)
+      {
+        if(last_digit == 1)byte_buffer = byte_buffer|16;
+      }
+      
+      else if (byte_counter%8 == 4)
+      {
+        if(last_digit == 1)byte_buffer = byte_buffer|8;
+      }
+      
+      else if (byte_counter%8 == 5)
+      {
+        if(last_digit == 1)byte_buffer = byte_buffer|4;
+      }
+      
+      else if (byte_counter%8 == 6)
+      {
+        if(last_digit == 1)byte_buffer = byte_buffer|2;
+      }
+      
+      else if(byte_counter%8 == 7)
+      {
+        if(last_digit == 1)byte_buffer = byte_buffer|1;
+        fwrite(&byte_buffer, 1, 1, fp);
+        byte_buffer = byte_buffer & 0;
+      }
+    }
+    fclose(fp);
 }
