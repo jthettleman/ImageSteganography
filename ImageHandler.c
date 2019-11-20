@@ -9,6 +9,9 @@ int height;
 int row_padding;
 unsigned char image_info[54];
 
+//Opens a desired bmp image file as an array of B,G,R color values
+//I.E. image_data[0-2] would have the B, G, and R pixel values and 
+//then image_data[3-5] would have the second pixel color values
 void openImageAsArray()
 {
   FILE *fp;
@@ -24,63 +27,71 @@ void openImageAsArray()
   int success = fread(image_info, sizeof(unsigned char), 54, fp);
   if(success <= 1)
   {
-    printf("Not a bmp file\n");
+    printf("ERROR: Not a bmp file\n");
     exit(1);
   }
 
-  //Get width and height of image
+  //Get width and height of image and allocate for padding
   width = *(int*)&image_info[18];
   height = *(int*)&image_info[22];
   row_padding = (width * 3 + 3) & (~3);
-  printf("Height: %d", height);
-  printf("Width: %d", width);
-  printf("Row padding: %d", row_padding);
+
   //Allocate size
   image_data = (unsigned char*) malloc(row_padding*height);
   //int counter = 0;
 
   //Read pixel information
-
   success = fread(image_data, sizeof(unsigned char), row_padding*height, fp);
   if(success <= 1)
   {
-    printf("Not a bmp file\n");
+    printf("ERROR: Not a bmp file\n");
     exit(1);
   }
 
-  //printf("Number of pixels: %d", counter);
   fclose(fp);
   return;
 }
 
+//Modifies pixel values last bits to match those of the text_data bits
+//to store text inside the image
 void hackifyImage()
 {
-  for(int j = 0; j < getTextFileSize(); j++)
+  if(row_padding*height < getTextFileSize())
   {
-    const char* binary = byte_to_binary(image_data[j]);
-    //printf("Binary: %s\n", binary);
-    bool last_digit = (binary[7]==49 ? 1 : 0);
-    //printf("Last: %d\n", last_digit);
-    if(last_digit == text_data[j])
+    printf("ERROR: Image is not large enough to store the text file provided\n");
+    exit(1);
+  }
+  else
+  {
+    for(int j = 0; j < getTextFileSize(); j++)
     {
-      //Nothin
-    }
-    else
-    {
-      //printf("%d\n", last_digit);
-      if(last_digit == 1)
+      //Stores single pixel value as a string
+      const char* binary = byte_to_binary(image_data[j]);
+      //Converts boolean to integer 1 or 0
+      bool last_digit = (binary[7]==49 ? 1 : 0);
+      
+      if(last_digit == text_data[j])
       {
-        //image_data[j] = image_data[j] & 254;
-        image_data[j] = image_data[j] & 254;
+        //Pixel last bit already matches text file bit
       }
       else
       {
-        image_data[j] = image_data[j] | 1;
+        if(last_digit == 1)
+        {
+          //Flips last bit from 1 to 0
+          image_data[j] = image_data[j] & 254;
+        }
+        else
+        {
+          //Flips last bit from 0 to 1
+          image_data[j] = image_data[j] | 1;
+        }
       }
     }
   }
 }
 
+//Writes new pixel data to a new image file specified by the user
 void rebuildImage()
 {
   FILE* fp;
@@ -90,8 +101,9 @@ void rebuildImage()
     exit(1);
   }
 
+  //Writes bmp header and new data
   fwrite(image_info, sizeof(unsigned char), 54, fp);
   fwrite(image_data, sizeof(unsigned char), row_padding*height, fp);
 
-  printf("Made Image!\n");
+  printf("SUCCESS: Image Created\n");
 }
