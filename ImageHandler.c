@@ -7,7 +7,9 @@
 int width;
 int height;
 int row_padding;
-BMPHeader image_info;
+//BMPHeader image_info;
+char* image_info_top[18];
+char* image_info_bottom[28];
 
 //Opens a desired bmp image file as an array of B,G,R color values
 //I.E. image_data[0-2] would have the B, G, and R pixel values and 
@@ -24,33 +26,51 @@ void openImageAsArray()
   }
 
   //Get bmp header information
-  int success = fread(&image_info, sizeof(BMPHeader), 1, fp);
+  int success = fread(image_info_top, 18, 1, fp);
   if(success < 1)
   {
     printf("HEADER ERROR: Not a 24-bit bmp file\n");
     exit(1);
   }
 
-  printf("Type: %d\n", image_info.type);
-  printf("Size: %d\n", image_info.size);
-  printf("Reserved 1: %d\n", image_info.reserved1);
-  printf("Reserved 2: %d\n", image_info.reserved2);
-  printf("Offset: %d\n", image_info.offset);
-  printf("Header: %d\n", image_info.dib_header_size);
-  printf("width: %d\n", image_info.width);
-  printf("height: %d\n", image_info.height);
-  printf("Num planes: %d\n", image_info.num_planes);
-  printf("bits per pixel: %d\n", image_info.bits_per_pixel);
-  printf("comp: %d\n", image_info.compression);
-  printf("size bytes: %d\n", image_info.image_size_bytes);
-  printf("x res: %d\n", image_info.x_resolution_ppm);
-  printf("y res: %d\n", image_info.y_resolution_ppm);
-  printf("# colors: %d\n", image_info.num_colors);
-  printf("important colors: %d\n", image_info.important_colors);
+  //printf("Type: %d\n", image_info.type);
+  //printf("Size: %d\n", image_info.size);
+  //printf("Reserved 1: %d\n", image_info.reserved1);
+  //printf("Reserved 2: %d\n", image_info.reserved2);
+  //printf("Offset: %d\n", image_info.offset);
+  //printf("Header: %d\n", image_info.dib_header_size);
+  //printf("width: %d\n", image_info.width);
+  //printf("height: %d\n", image_info.height);
+  //printf("Num planes: %d\n", image_info.num_planes);
+  //printf("bits per pixel: %d\n", image_info.bits_per_pixel);
+  //printf("comp: %d\n", image_info.compression);
+  //printf("size bytes: %d\n", image_info.image_size_bytes);
+  //printf("x res: %d\n", image_info.x_resolution_ppm);
+  //printf("y res: %d\n", image_info.y_resolution_ppm);
+  //printf("# colors: %d\n", image_info.num_colors);
+  //printf("important colors: %d\n", image_info.important_colors);
 
   //Get width and height of image and allocate for padding
-  width = image_info.width;
-  height = image_info.height;
+  //width = image_info.width;
+  //height = image_info.height;
+  success = fread(&width, 4, 1, fp);
+  if(success < 1)
+  {
+    printf("HEADER ERROR: Not a 24-bit bmp file\n");
+    exit(1);
+  }
+  success = fread(&height, 4, 1, fp);
+  if(success < 1)
+  {
+    printf("HEADER ERROR: Not a 24-bit bmp file\n");
+    exit(1);
+  }
+  success = fread(image_info_bottom, 28, 1, fp);
+  if(success < 1)
+  {
+    printf("HEADER ERROR: Not a 24-bit bmp file\n");
+    exit(1);
+  }
   
   row_padding = (width * 3 + 3) & (~3);
 
@@ -120,7 +140,10 @@ void rebuildImage()
   }
 
   //Writes bmp header and new data
-  fwrite(&image_info, sizeof(unsigned char), 54, fp);
+  fwrite(image_info_top, 1, 18, fp);
+  fwrite(&width, 4, 1, fp);
+  fwrite(&height, 4, 1, fp);
+  fwrite(image_info_bottom, 1, 28, fp);
   fwrite(image_data, sizeof(unsigned char), row_padding*height, fp);
 
   printf("SUCCESS: Image Created\n");
@@ -136,7 +159,7 @@ void readHiddenData()
     exit(1);
   }
 
-  unsigned char byte_buffer = ' ';
+  unsigned char byte_buffer;
   byte_buffer = byte_buffer & 0;
   int byte_counter = 0;
   
@@ -184,8 +207,12 @@ void readHiddenData()
       {
         if(last_digit == 1)byte_buffer = byte_buffer|1;
         fwrite(&byte_buffer, 1, 1, fp);
+        printf("%c", byte_buffer);
         byte_buffer = byte_buffer & 0;
       }
+      
+      byte_counter++;
     }
     fclose(fp);
+    printf("SUCCESS: Image Read\n");
 }

@@ -18,7 +18,7 @@ char* getOutputName();
 char* getOutputTextFileName();
 char* byte_to_binary(int x);
 
-typedef struct                        // Total: 54 bytes
+typedef struct bmp_info               // Total: 54 bytes
 {              
   unsigned short int type;            // File type
   unsigned int size;                  // File size in bytes
