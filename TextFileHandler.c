@@ -72,7 +72,6 @@ void openTextAsArray()
 
     // close files
     fclose(sourceFile);
-    //fclose(targetFile);
     return;
 }
 
